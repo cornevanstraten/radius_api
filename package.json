@@ -1,8 +1,11 @@
 {
   "name": "newapi",
   "version": "1.0.0",
-  "description": "RESTful API tutorial project shop",
+  "description": "radius API first version",
   "main": "index.js",
+  "engines": {
+    "node": "8.11.4"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
