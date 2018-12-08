@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const multer = require('multer'); //bodyParser for files
 const checkAuth = require('../middleware/check-auth');
 const checkOwner = require('../middleware/check-owner');
-const ListingsController = require('../controllers/listings')
+const HelpersController = require('../controllers/helpers')
 
 var storage = multer.diskStorage({
   filename: function(req, file, cb) {
@@ -27,17 +27,11 @@ const upload = multer({
 });
 
 
+router.post('/image', checkAuth, upload.single('image'), HelpersController.upload_image);
 
-router.get('/', ListingsController.get_all);
+// router.patch('/image/:public_id', checkAuth, upload.single('image'), HelpersController.update_image);
 
-router.post('/', checkAuth, ListingsController.create_new);
-
-router.get('/:listingId', ListingsController.get_listing);
-
-router.patch('/:listingId', checkAuth, checkOwner, ListingsController.update_listing);
-
-router.delete('/:listingId', checkAuth, checkOwner, ListingsController.destroy);
-
+router.post('/geocode', HelpersController.geocode);
 
 
 module.exports = router;

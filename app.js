@@ -7,10 +7,10 @@ const mongoose    = require('mongoose');
 
 
 //require routes
-const productRoutes   = require('./api/routes/products');
 const listingRoutes   = require('./api/routes/listings');
 const orderRoutes     = require('./api/routes/orders');
 const userRoutes      = require('./api/routes/users');
+const helperRoutes    = require('./api/routes/helpers');
 
 //database connection
 const databaseURI = process.env.DB_URL2 //ENV set in nodemon.json
@@ -40,11 +40,10 @@ app.use((req, res, next) => {
 })
 
 
-//using routes
-app.use('/products', productRoutes);
 app.use('/listings', listingRoutes);
 app.use('/orders', orderRoutes);
 app.use('/users', userRoutes);
+app.use('/helpers', helperRoutes); //external API's
 
 
 // seeing that the above routes should catch all valid requests, anything that makes it past those lines without being picked up should throw an error. Which is why error handling can just live below here
