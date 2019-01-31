@@ -1,7 +1,24 @@
 const mongoose = require('mongoose');
 
+mongoose.set('useCreateIndex', true) //counters deprecated ensureIndex
+
+
+//create geolocation
+const geoSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "Point"
+  },
+  coordinates: {
+    type: [Number],
+    index: "2dsphere" //creates an index
+  }
+})
+
+//create addressLocation 
+
 //parent | child Schema setup: https://mongoosejs.com/docs/subdocs.html
-var miniUserSchema = new mongoose.Schema({
+const miniUserSchema = new mongoose.Schema({
       firstName: {type: String, required: true},
       lastName: {type: String, required: true},
       avatar: {type: String, required: true},
@@ -18,7 +35,8 @@ const listingSchema = mongoose.Schema({
   title: {type: String, required: true},
   oneliner: {type: String, required: true},
   price: {type: Number, required: true},
-  educator: miniUserSchema
+  educator: miniUserSchema,
+  geometry: geoSchema
 });
 
 

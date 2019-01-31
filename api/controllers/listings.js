@@ -18,7 +18,7 @@ const googleMapsClient = require('@google/maps').createClient({
 
 exports.get_all = (req, res, next) => {
   Listing.find()
-    .select('title price oneliner _id coverImage educator')
+    .select('title price oneliner _id coverImage educator geometry')
     .exec() //creates promise
     .then(docs => {
       const response = {
@@ -31,6 +31,53 @@ exports.get_all = (req, res, next) => {
             _id: doc._id,
             coverImage: doc.coverImage,
             educator: doc.educator,
+            geometry: doc.geometry,
+            request: {
+              type: 'GET',
+              url: hostname + '/listings/' + doc._id
+            }
+          }
+        })
+      }
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error: err
+      })
+    });
+}
+
+//http://localhost:3000/listings?lng=50.45&lat=42.35  <--- URL params
+exports.geo_get = (req, res, next) => {
+  console.log(req.query.lng + " " + req.query.lat)
+  Listing.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+        },
+        distanceField: "dist.calculated",
+        maxDistance: parseFloat(req.query.distance)*1000,
+        spherical: true
+      }
+    }
+  ])
+    .then(docs => {
+      const response = {
+        count: docs.length,
+        listings: docs.map(doc => {
+          return {
+            title: doc.title,
+            price: doc.price,
+            oneliner: doc.oneliner,
+            _id: doc._id,
+            coverImage: doc.coverImage,
+            educator: doc.educator,
+            geometry: doc.geometry,
+            distance: doc.dist.calculated,
             request: {
               type: 'GET',
               url: hostname + '/listings/' + doc._id
@@ -61,6 +108,10 @@ exports.create_new = (req, res, next) => {
         lastName: req.userData.lastName,
         avatar: req.userData.avatar,
         ref: req.userData.userId
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: req.body.coordinates
       }
     });
     return listing.save()
@@ -75,6 +126,7 @@ exports.create_new = (req, res, next) => {
         price: result.price,
         coverImage: result.coverImage,
         educator: result.educator,
+        geometry: result.geometry,
         _id: result._id,
         request: {
           type: 'GET',
@@ -95,7 +147,7 @@ exports.create_new = (req, res, next) => {
 exports.get_listing = (req, res, next) => {
   const id = req.params.listingId;
   Listing.findById(id)
-  .select('title oneliner price _id coverImage educator')
+  .select('title oneliner price _id coverImage educator geometry')
   .exec()
   .then(doc => {
     console.log(doc);

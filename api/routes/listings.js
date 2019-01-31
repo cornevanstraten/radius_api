@@ -28,7 +28,7 @@ const upload = multer({
 
 
 
-router.get('/', ListingsController.get_all);
+router.get('/', ListingsController.geo_get);
 
 router.post('/', checkAuth, ListingsController.create_new);
 
