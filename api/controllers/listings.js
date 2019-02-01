@@ -51,7 +51,7 @@ exports.get_all = (req, res, next) => {
 
 //http://localhost:3000/listings?lng=50.45&lat=42.35  <--- URL params
 exports.geo_get = (req, res, next) => {
-  console.log(req.query.lng + " " + req.query.lat)
+  const regex = new RegExp(escapeRegex(req.query.search), "gi");
   Listing.aggregate([
     {
       $geoNear: {
@@ -61,6 +61,13 @@ exports.geo_get = (req, res, next) => {
         },
         distanceField: "dist.calculated",
         maxDistance: parseFloat(req.query.distance)*1000,
+        query: {
+                $or: [
+                    {title: regex},
+                    {oneliner: regex},
+                  ]
+                // {price: { $lt: 20 }}
+        },
         spherical: true
       }
     }
@@ -208,4 +215,15 @@ exports.destroy = (req, res, next) => {
       error: err
     });
   });
+}
+
+
+
+
+
+
+//non-routes
+
+function escapeRegex(text){
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
