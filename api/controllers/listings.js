@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const multer = require('multer'); //bodyParser for files
 const Listing = require('../models/listing');
+const usZip = require('us-zips');
 const hostname = process.env.HOSTNAME;
 const cloudinary = require('cloudinary');
 
@@ -49,25 +50,29 @@ exports.get_all = (req, res, next) => {
     });
 }
 
-// /listings?lng=51.90&lat=4.47&distance=100&search=koek+monster
+// /listings?lng=51.90&lat=4.47&distance=100
+// /listings?zip=30052&distance=100&pricemax=50
 exports.geo_get = (req, res, next) => {
-  const regex = new RegExp(escapeRegex(req.query.search), "gi");
   const pricemax = parseFloat(req.query.pricemax)
+  let coordinates
+    if(req.query.lng && req.query.lat) {
+      coordinates = [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+    } else if (req.query.zip){
+      let zipCoordinates = usZip[req.query.zip] //object
+      coordinates = [zipCoordinates.longitude, zipCoordinates.latitude]
+    } else {
+      throw Error('no geolocation details provided')
+    }
   Listing.aggregate([
     {
       $geoNear: {
         near: {
           type: 'Point',
-          coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+          coordinates: coordinates
         },
         distanceField: "dist.calculated",
         maxDistance: parseFloat(req.query.distance)*1609.344, //meters to miles
-        query: { //consider refactoring queries for different scenarios
-            $or: [
-                {title: regex},
-                {oneliner: regex},
-                {description: regex}
-              ],
+        query: {
               price: { $lt: pricemax || 10000}
         },
         spherical: true
