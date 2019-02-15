@@ -30,6 +30,8 @@ const upload = multer({
 
 router.get('/', ListingsController.geo_get);
 
+router.get('/_all', ListingsController.get_all); //for internal dashboards etc. 
+
 router.post('/', checkAuth, ListingsController.create_new);
 
 router.get('/:listingId', ListingsController.get_listing);

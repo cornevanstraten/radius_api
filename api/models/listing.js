@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 mongoose.set('useCreateIndex', true) //counters deprecated ensureIndex
 
 
-//create geolocation
 const geoSchema = new mongoose.Schema({
   type: {
     type: String,
@@ -15,17 +14,23 @@ const geoSchema = new mongoose.Schema({
   }
 })
 
-//create addressLocation 
+const locationSchema  = new mongoose.Schema({
+  street_number: {type: String, required: true},
+  street_name: {type: String, required: true},
+  city: {type: String, required: true},
+  state: {type: String, required: true},
+  country: {type: String, required: true},
+  ZIP: {type: String, required: true}
+})
 
-//parent | child Schema setup: https://mongoosejs.com/docs/subdocs.html
 const miniUserSchema = new mongoose.Schema({
-      firstName: {type: String, required: true},
-      lastName: {type: String, required: true},
-      avatar: {type: String, required: true},
-      ref:  {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: "User"
-            }
+    firstName: {type: String, required: true},
+    lastName: {type: String, required: true},
+    avatar: {type: String, required: true},
+    ref:  {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+          }
 });
 
 
@@ -34,10 +39,14 @@ const listingSchema = mongoose.Schema({
   coverImage: {type: String, required: true}, //includes version
   title: {type: String, required: true},
   oneliner: {type: String, required: true},
+  description: {type: String, required: true},
   price: {type: Number, required: true},
   educator: miniUserSchema,
+  location: locationSchema,
   geometry: geoSchema
 });
+
+// listingSchema.index({ title: 'text', oneliner: 'text', description: 'text'}) //creates index
 
 
 //schema is layout/design of the object

@@ -49,9 +49,10 @@ exports.get_all = (req, res, next) => {
     });
 }
 
-//http://localhost:3000/listings?lng=50.45&lat=42.35  <--- URL params
+// /listings?lng=51.90&lat=4.47&distance=100&search=koek+monster
 exports.geo_get = (req, res, next) => {
   const regex = new RegExp(escapeRegex(req.query.search), "gi");
+  const pricemax = parseFloat(req.query.pricemax)
   Listing.aggregate([
     {
       $geoNear: {
@@ -60,13 +61,14 @@ exports.geo_get = (req, res, next) => {
           coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
         },
         distanceField: "dist.calculated",
-        maxDistance: parseFloat(req.query.distance)*1000,
-        query: {
-                $or: [
-                    {title: regex},
-                    {oneliner: regex},
-                  ]
-                // {price: { $lt: 20 }}
+        maxDistance: parseFloat(req.query.distance)*1609.344, //meters to miles
+        query: { //consider refactoring queries for different scenarios
+            $or: [
+                {title: regex},
+                {oneliner: regex},
+                {description: regex}
+              ],
+              price: { $lt: pricemax || 10000}
         },
         spherical: true
       }
@@ -75,22 +77,7 @@ exports.geo_get = (req, res, next) => {
     .then(docs => {
       const response = {
         count: docs.length,
-        listings: docs.map(doc => {
-          return {
-            title: doc.title,
-            price: doc.price,
-            oneliner: doc.oneliner,
-            _id: doc._id,
-            coverImage: doc.coverImage,
-            educator: doc.educator,
-            geometry: doc.geometry,
-            distance: doc.dist.calculated,
-            request: {
-              type: 'GET',
-              url: hostname + '/listings/' + doc._id
-            }
-          }
-        })
+        listings: docs
       }
       res.status(200).json(response);
     })
