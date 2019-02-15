@@ -57,11 +57,14 @@ exports.geo_get = (req, res, next) => {
   let coordinates
     if(req.query.lng && req.query.lat) {
       coordinates = [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-    } else if (req.query.zip){
+    } else if (req.query.zip.length == 5){
       let zipCoordinates = usZip[req.query.zip] //object
-      coordinates = [zipCoordinates.longitude, zipCoordinates.latitude]
+        if (!zipCoordinates){
+          throw Error('incorrect ZIP')
+        }
+        coordinates = [zipCoordinates.longitude, zipCoordinates.latitude]
     } else {
-      throw Error('no geolocation details provided')
+      throw Error('insufficient geolocation details provided')
     }
   Listing.aggregate([
     {
