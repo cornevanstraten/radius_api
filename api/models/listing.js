@@ -36,14 +36,33 @@ const miniUserSchema = new mongoose.Schema({
 
 const listingSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
+  // createdAt: {type: Date, default: Date.now},
+  isActive: {type: Boolean, default: true},
   coverImage: {type: String, required: true}, //includes version
   title: {type: String, required: true},
   oneliner: {type: String, required: true},
   description: {type: String, required: true},
+  // tags: [{type: String, required: false}],
   price: {type: Number, required: true},
   educator: miniUserSchema,
   location: locationSchema,
-  geometry: geoSchema
+  geometry: geoSchema,
+  time: {
+    startUTC: {type: Date, required: true},
+    endUTC: {type: Date, required: true},
+    duration: {type: Number, required: true}, //minutes
+    timeZone: {type: String, required: true},
+    isRecurring: {type: Boolean, required: true},
+    recurrancePattern: { // iCal RFC
+      freq: {type: String, required: false},  //DAILY
+      interval: {type: Number, default: 1},   //7 (weekly)
+      count: {type: Number, default: 1},      //3 (three sessions)
+    }
+  },
+  portfolio: {
+    pictures: [{type: String, required: false}],//array of picture links
+    assets: [{type: String, required: false}]//array of pdf links
+  }
 });
 
 // listingSchema.index({ title: 'text', oneliner: 'text', description: 'text'}) //creates index

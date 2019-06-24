@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Order = require('../models/order');
 const Product = require('../models/product');
+const Listing = require('../models/listing');
 
 const hostname = process.env.HOSTNAME;
 
