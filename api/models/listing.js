@@ -41,18 +41,18 @@ const listingSchema = mongoose.Schema({
   coverImage: {type: String, required: true}, //includes version
   title: {type: String, required: true},
   oneliner: {type: String, required: true},
-  description: {type: String, required: true},
+  description: {type: String, required: false},
   // tags: [{type: String, required: false}],
   price: {type: Number, required: true},
   educator: miniUserSchema,
   location: locationSchema,
   geometry: geoSchema,
   time: {
-    startUTC: {type: Date, required: true},
-    endUTC: {type: Date, required: true},
-    duration: {type: Number, required: true}, //minutes
-    timeZone: {type: String, required: true},
-    isRecurring: {type: Boolean, required: true},
+    startUTC: {type: Date, required: false},
+    endUTC: {type: Date, required: false},
+    duration: {type: Number, required: false}, //minutes
+    timeZone: {type: String, required: false},
+    isRecurring: {type: Boolean, required: false},
     recurrancePattern: { // iCal RFC
       freq: {type: String, required: false},  //DAILY
       interval: {type: Number, default: 1},   //7 (weekly)
